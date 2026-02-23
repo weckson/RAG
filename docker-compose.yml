@@ -1,0 +1,14 @@
+version: "3.9"
+
+services:
+  executor:
+    build: .
+    env_file:
+      - .env
+    command: ["python", "-m", "src.app"]
+    volumes:
+      - ./:/app
+    working_dir: /app
+    restart: unless-stopped
+    ports:
+      - "8080:8080"

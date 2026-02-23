@@ -1,0 +1,27 @@
+[project]
+name = "trade-executor"
+version = "0.1.0"
+description = "IBKR trade execution service driven by external signal providers"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+  "fastapi>=0.116.0",
+  "httpx>=0.28.0",
+  "ib-insync>=0.9.86",
+  "pydantic>=2.11.0",
+  "pydantic-settings>=2.11.0",
+  "uvicorn>=0.35.0",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8.4.0",
+]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
+
+[build-system]
+requires = ["setuptools>=80", "wheel"]
+build-backend = "setuptools.build_meta"
