@@ -70,6 +70,8 @@ class ExecutionApp:
             kill_switch=self.kill_switch,
             enqueue_signal=self.enqueue_signal,
             update_mark=self.executor.update_mark,
+            get_mark_prices=lambda: dict(self.executor.mark_prices),
+            get_positions=lambda: dict(self.executor.state.positions),
             host=settings.control_host,
             port=settings.control_port,
             api_key=settings.control_api_key,
@@ -100,6 +102,17 @@ class ExecutionApp:
             asyncio.create_task(self._guarded("health_update", self._health_update_loop())),
             asyncio.create_task(self._guarded("control_http", self.control_server.serve())),
         ]
+
+        # Embedded AIStock bridge mode
+        if self.settings.aistock_bridge_enabled:
+            bridge = self._create_aistock_bridge()
+            tasks.append(
+                asyncio.create_task(self._guarded("aistock_bridge", bridge.run_forever()))
+            )
+            tasks.append(
+                asyncio.create_task(self._guarded("market_pulse", self._market_pulse_loop()))
+            )
+            logger.info("aistock bridge enabled url=%s", self.settings.aistock_url)
 
         try:
             await self.stop_event.wait()
@@ -148,6 +161,53 @@ class ExecutionApp:
             except Exception as exc:
                 logger.warning("broker sync failed err=%s", exc)
             await asyncio.sleep(15)
+
+    def _create_aistock_bridge(self):  # noqa: ANN201
+        from src.integrations.aistock_bridge import AIStockBridge, BridgeConfig
+
+        cfg = BridgeConfig(
+            aistock_base_url=self.settings.aistock_url,
+            sentiment_engine_base_url=self.settings.aistock_sentiment_url,
+            executor_base_url=f"http://127.0.0.1:{self.settings.control_port}",
+            executor_api_key=self.settings.control_api_key,
+            poll_interval_seconds=self.settings.aistock_bridge_interval,
+            dashboard_limit=self.settings.aistock_dashboard_limit,
+            cooldown_seconds=self.settings.aistock_cooldown_seconds,
+            dry_run=self.settings.aistock_bridge_dry_run,
+            guard_enabled=True,
+        )
+        bridge = AIStockBridge(cfg)
+        # Share state directly — no HTTP needed for prices/positions
+        bridge.set_direct_state(
+            mark_prices=self.executor.mark_prices,
+            positions=self.executor.state.positions,
+        )
+        return bridge
+
+    async def _market_pulse_loop(self) -> None:
+        """Push IBKR mark prices to AIStock orchestrator to improve hotspot calculations."""
+        import httpx
+        from datetime import datetime, timezone
+
+        while not self.stop_event.is_set():
+            try:
+                marks = dict(self.executor.mark_prices)
+                if marks:
+                    now = datetime.now(timezone.utc).isoformat()
+                    pulses = [
+                        {"timestamp_utc": now, "ticker": sym, "last_price": price}
+                        for sym, price in marks.items()
+                        if price > 0
+                    ]
+                    if pulses:
+                        url = f"{self.settings.aistock_url}/ingest/market_pulse"
+                        async with httpx.AsyncClient(timeout=httpx.Timeout(5.0)) as client:
+                            resp = await client.post(url, json=pulses)
+                            if resp.status_code == 200:
+                                logger.debug("pushed %d market pulses to AIStock", len(pulses))
+            except Exception as exc:
+                logger.debug("market pulse push failed err=%s", exc)
+            await asyncio.sleep(30)
 
     async def _health_update_loop(self) -> None:
         while not self.stop_event.is_set():

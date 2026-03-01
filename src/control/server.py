@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import asyncio
 from collections.abc import Awaitable, Callable
-from typing import Literal
+from typing import Any, Literal
 
 import uvicorn
 from fastapi import FastAPI, Header, HTTPException
@@ -23,6 +23,7 @@ class SignalIn(BaseModel):
     reason: str = "EXTERNAL_SIGNAL"
     ts_ms: int | None = None
     price: float | None = Field(default=None, gt=0.0)
+    meta: dict[str, Any] | None = None
 
     @field_validator("symbol")
     @classmethod
@@ -49,6 +50,7 @@ class SignalIn(BaseModel):
             confidence=float(self.confidence),
             reason=self.reason,
             ts_ms=self.ts_ms or now_utc_ms(),
+            meta=self.meta or {},
         )
 
 
@@ -72,6 +74,8 @@ class ExecutionControlServer:
         kill_switch: KillSwitch,
         enqueue_signal: Callable[[Signal], Awaitable[int]],
         update_mark: Callable[[str, float], None],
+        get_mark_prices: Callable[[], dict[str, float]],
+        get_positions: Callable[[], dict[str, int]],
         host: str,
         port: int,
         api_key: str = "",
@@ -80,6 +84,8 @@ class ExecutionControlServer:
         self.kill_switch = kill_switch
         self.enqueue_signal = enqueue_signal
         self.update_mark = update_mark
+        self.get_mark_prices = get_mark_prices
+        self.get_positions = get_positions
         self.host = host
         self.port = port
         self.api_key = api_key
@@ -114,6 +120,14 @@ class ExecutionControlServer:
             self._require_api_key(x_api_key)
             self.update_mark(payload.symbol, float(payload.price))
             return {"ok": True, "symbol": payload.symbol, "price": float(payload.price)}
+
+        @self.app.get("/marks")
+        async def get_marks() -> dict[str, object]:
+            return {"marks": self.get_mark_prices()}
+
+        @self.app.get("/positions")
+        async def get_positions() -> dict[str, object]:
+            return {"positions": self.get_positions()}
 
         @self.app.post("/signals")
         async def signals(

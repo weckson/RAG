@@ -31,11 +31,15 @@ def _build_server(
 
     tracker = HealthTracker(HealthSnapshot())
     kill_switch = KillSwitch(initial_state=False, kill_file=str(tmp_path / "KILL_TEST"))
+    positions: dict[str, int] = {}
+
     server = ExecutionControlServer(
         tracker=tracker,
         kill_switch=kill_switch,
         enqueue_signal=enqueue_signal,
         update_mark=update_mark,
+        get_mark_prices=lambda: dict(marks),
+        get_positions=lambda: dict(positions),
         host="127.0.0.1",
         port=8080,
         api_key=api_key,

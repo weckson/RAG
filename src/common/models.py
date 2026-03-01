@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Literal
+from typing import Any, Literal
 
 
 class Side(str, Enum):
@@ -38,6 +38,7 @@ class Signal:
     confidence: float
     reason: str
     ts_ms: int
+    meta: dict[str, Any] = field(default_factory=dict)
 
 
 @dataclass(slots=True)
