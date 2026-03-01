@@ -104,8 +104,9 @@ class ExecutionEngine:
         try:
             if signal.side == Side.BUY:
                 order_id = await self.ibkr.next_order_id()
-                take_profit = price * (1 + self.take_profit_pct)
-                stop_loss = price * (1 - self.stop_loss_pct)
+                sl_pct, tp_pct = self._compute_bracket_params(signal)
+                take_profit = price * (1 + tp_pct)
+                stop_loss = price * (1 - sl_pct)
                 orders = create_bracket_orders(
                     parent_order_id=order_id,
                     side=signal.side,
@@ -157,6 +158,41 @@ class ExecutionEngine:
             )
             self.store.insert_order(event)
             await self.notifier.send(f"ORDER FAILED {signal.symbol} err={exc}")
+
+    def _compute_bracket_params(self, signal: Signal) -> tuple[float, float]:
+        """Compute (stop_loss_pct, take_profit_pct) adapted by guard metadata.
+
+        Guard multiplier ranges:
+        - >= 0.8 (low risk): default stops
+        - 0.5 - 0.8 (medium risk): widen by 50%
+        - < 0.5 (high risk): widen by 100%
+
+        Hold horizon adjustments:
+        - "5m": tighten by 25% (scalp)
+        - "30m": no adjustment
+        - "1d": widen by 25% (swing)
+        """
+        base_sl = self.stop_loss_pct
+        base_tp = self.take_profit_pct
+
+        guard_multiplier = float(signal.meta.get("guard_multiplier", 1.0))
+        horizon = str(signal.meta.get("hold_horizon_hint", "1d"))
+
+        if guard_multiplier >= 0.8:
+            risk_factor = 1.0
+        elif guard_multiplier >= 0.5:
+            risk_factor = 1.5
+        else:
+            risk_factor = 2.0
+
+        if horizon == "5m":
+            horizon_factor = 0.75
+        elif horizon == "30m":
+            horizon_factor = 1.0
+        else:
+            horizon_factor = 1.25
+
+        return (base_sl * risk_factor * horizon_factor, base_tp * risk_factor * horizon_factor)
 
     def _persist_fills(self, symbol: str, side: Side, trades: list) -> list[FillEvent]:
         events: list[FillEvent] = []

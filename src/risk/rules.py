@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import math
 from dataclasses import dataclass
 
 from src.common.models import Side, Signal
@@ -65,8 +66,11 @@ class RiskEngine:
             return RiskDecision(False, "MAX_TOTAL_NOTIONAL_REACHED")
 
         allowed_notional = min(self.max_order_notional_usd, remaining_total)
-        qty = fixed_notional_quantity(price=price, max_notional_usd=allowed_notional)
-        if qty <= 0:
+        base_qty = fixed_notional_quantity(price=price, max_notional_usd=allowed_notional)
+        if base_qty <= 0:
             return RiskDecision(False, "ORDER_NOTIONAL_TOO_SMALL")
+
+        confidence = max(0.05, min(1.0, signal.confidence))
+        qty = max(1, math.floor(base_qty * confidence))
 
         return RiskDecision(True, "OK", qty=qty)

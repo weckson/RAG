@@ -128,6 +128,40 @@ curl -X POST http://127.0.0.1:8080/signals \
   -d '{"symbol":"AAPL","side":"BUY","confidence":0.9,"reason":"LLM_SIGNAL","price":185.4}'
 ```
 
+## AIStock Integration
+
+`AIStock` can run as the prediction engine, and this repo stays as execution/risk.
+
+1. Start AIStock orchestrator (in `../AIStock`):
+
+```bash
+python main.py --engine orchestrator --port 8000
+```
+
+2. Start this executor:
+
+```bash
+python -m src.app
+```
+
+3. Start bridge process (poll AIStock cards and forward executable signals):
+
+```bash
+python .\scripts\aistock_bridge.py
+```
+
+Optional one-shot check (no order submission):
+
+```bash
+python .\scripts\aistock_bridge.py --once --dry-run
+```
+
+Bridge behavior:
+- Pulls `GET /dashboard` from AIStock
+- Maps `DecisionCard` to `BUY/SELL` under configurable thresholds
+- Fetches latest quote (Yahoo) and sends to executor `/signals` with `price`
+- Applies per-symbol side cooldown to avoid duplicate bursts
+
 ## Storage
 
 Default: `sqlite:///./executor.db`

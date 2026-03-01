@@ -52,6 +52,15 @@ class Settings(BaseSettings):
     kill_switch: bool = Field(default=False, alias="KILL_SWITCH")
     kill_switch_file: str = Field(default="./KILL", alias="KILL_SWITCH_FILE")
 
+    # AIStock Bridge (embedded mode)
+    aistock_bridge_enabled: bool = Field(default=False, alias="AISTOCK_BRIDGE_ENABLED")
+    aistock_url: str = Field(default="http://127.0.0.1:8000", alias="AISTOCK_URL")
+    aistock_sentiment_url: str = Field(default="http://127.0.0.1:8002", alias="AISTOCK_SENTIMENT_URL")
+    aistock_bridge_interval: int = Field(default=20, alias="AISTOCK_BRIDGE_INTERVAL")
+    aistock_dashboard_limit: int = Field(default=30, alias="AISTOCK_DASHBOARD_LIMIT")
+    aistock_bridge_dry_run: bool = Field(default=False, alias="AISTOCK_BRIDGE_DRY_RUN")
+    aistock_cooldown_seconds: int = Field(default=180, alias="AISTOCK_COOLDOWN_SECONDS")
+
 
 @lru_cache(maxsize=1)
 def get_settings() -> Settings:
