@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(wc -l /e/AIStock/**/*.py)",
+      "Bash(find /e/AIStock -name \"requirements.txt\" -exec cat {} ;)",
+      "Bash(python -m pytest tests/ -v)"
+    ]
+  }
+}
