@@ -4,18 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="3dade89b-f56d-437b-9815-03b466514c01" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.env.example" beforeDir="false" afterPath="$PROJECT_DIR$/.env.example" afterDir="false" />
+    <list default="true" id="3dade89b-f56d-437b-9815-03b466514c01" name="Changes" comment="modification">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/app.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/app.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/common/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/common/models.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/control/server.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/control/server.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/execution/executor.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/execution/executor.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/risk/rules.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/risk/rules.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/settings.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/test_control_server.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test_control_server.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/test_risk_rules.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test_risk_rules.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -28,6 +18,18 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;weckson&quot;
+  }
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/weckson/RAG.git&quot;,
+    &quot;accountId&quot;: &quot;90c28729-d3f4-43b3-a6f0-de7b2ebc30c1&quot;
+  }
+}</component>
   <component name="McpProjectServerCommands">
     <commands />
     <urls />
@@ -97,10 +99,28 @@
       <workItem from="1772113808245" duration="5437000" />
       <workItem from="1772187653141" duration="3735000" />
       <workItem from="1772371211981" duration="622000" />
+      <workItem from="1772377370320" duration="357000" />
+      <workItem from="1772405049120" duration="1879000" />
+      <workItem from="1772631308406" duration="1057000" />
+      <workItem from="1772708481714" duration="64000" />
+      <workItem from="1772758730475" duration="2114000" />
     </task>
+    <task id="LOCAL-00001" summary="modification">
+      <option name="closed" value="true" />
+      <created>1772377471120</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1772377471120</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="modification" />
+    <option name="LAST_COMMIT_MESSAGE" value="modification" />
   </component>
 </project>
